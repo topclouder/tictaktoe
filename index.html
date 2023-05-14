@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Tic Tac Toe</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f5f5f5;
+      }
+
+      .container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+
+      .board {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        grid-gap: 5px;
+        width: 300px;
+      }
+
+      .cell {
+        width: 100px;
+        height: 100px;
+        background-color: #ffffff;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 48px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+
+      .cell:hover {
+        background-color: #f1f1f1;
+      }
+
+      .cell.X {
+        color: #f44336;
+      }
+
+      .cell.O {
+        color: #2196f3;
+      }
+
+      .result {
+        margin-top: 20px;
+        text-align: center;
+        font-size: 24px;
+        color: #666666;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="board"></div>
+    </div>
+
+    <script>
+      // Create the game board
+      const board = document.querySelector(".board");
+      const cells = Array.from({ length: 9 });
+
+      cells.forEach((_, index) => {
+        const cell = document.createElement("div");
+        cell.classList.add("cell");
+        cell.dataset.index = index;
+        board.appendChild(cell);
+      });
+
+      // Game state variables
+      let currentPlayer = "X";
+      let isGameOver = false;
+
+      // Event listener for cell clicks
+      board.addEventListener("click", handleCellClick);
+
+      function handleCellClick(event) {
+        if (isGameOver) return;
+
+        const cell = event.target;
+        const index = cell.dataset.index;
+
+        if (cells[index]) return;
+
+        // Update cell value and render it on the board
+        cells[index] = currentPlayer;
+        cell.textContent = currentPlayer;
+        cell.classList.add(currentPlayer);
+
+        // Check for a winner or a draw
+        if (checkWin()) {
+          announceResult(`Player ${currentPlayer} wins!`);
+          isGameOver = true;
+          return;
+        }
+
+        if (checkDraw()) {
+          announceResult("It's a draw!");
+          isGameOver = true;
+          return;
+        }
+
+        // Switch to the next player
+        currentPlayer = currentPlayer === "X" ? "O" : "X";
+      }
+
+      // Function to check for a win
+      function checkWin() {
+        const winCombinations = [
+          [0, 1, 2],
+          [3, 4, 5],
+          [6, 7, 8], // rows
+          [0, 3, 6],
+          [1, 4, 7],
+          [2, 5, 8], // columns
+          [0, 4, 8],
+          [2, 4, 6], // diagonals
+        ];
+
+        for (const combination of winCombinations) {
+          const [a, b, c] = combination;
+          if (cells[a] && cells[a] === cells[b] && cells[a] === cells[c]) {
+            return true;
+          }
+        }
+
+        return false;
+      }
+
+      // Function to check for a draw
+      function checkDraw() {
+        return cells.every((cell) => cell !== undefined);
+      }
+
+      // Function to announce the game result
+      function announceResult(message) {
+        const result = document.createElement("div");
+        result.classList.add("result");
+        result.textContent = message;
+        document.body.appendChild(result);
+      }
+    </script>
+  </body>
+</html>
