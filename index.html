@@ -1,148 +1,102 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Tic Tac Toe</title>
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        background-color: #f5f5f5;
-      }
-
-      .container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-      }
-
-      .board {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        grid-gap: 5px;
-        width: 300px;
-      }
-
-      .cell {
-        width: 100px;
-        height: 100px;
-        background-color: #ffffff;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-size: 48px;
-        cursor: pointer;
-        transition: background-color 0.3s;
-      }
-
-      .cell:hover {
-        background-color: #f1f1f1;
-      }
-
-      .cell.X {
-        color: #f44336;
-      }
-
-      .cell.O {
-        color: #2196f3;
-      }
-
-      .result {
-        margin-top: 20px;
-        text-align: center;
-        font-size: 24px;
-        color: #666666;
-      }
-    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   </head>
   <body>
-    <div class="container">
-      <div class="board"></div>
+    <h1>Tic Tac Toe</h1>
+    <div id="board">
+      <div class="row">
+        <button class="button" data-position="1">1</button>
+        <button class="button" data-position="2">2</button>
+        <button class="button" data-position="3">3</button>
+      </div>
+      <div class="row">
+        <button class="button" data-position="4">4</button>
+        <button class="button" data-position="5">5</button>
+        <button class="button" data-position="6">6</button>
+      </div>
+      <div class="row">
+        <button class="button" data-position="7">7</button>
+        <button class="button" data-position="8">8</button>
+        <button class="button" data-position="9">9</button>
+      </div>
     </div>
-
     <script>
-      // Create the game board
-      const board = document.querySelector(".board");
-      const cells = Array.from({ length: 9 });
+      $(function () {
+        // Bind the event to the click of the buttons.
+        $(".button").on("click", function () {
+          // Get the position of the button that was clicked.
+          const position = $(this).data("position");
 
-      cells.forEach((_, index) => {
-        const cell = document.createElement("div");
-        cell.classList.add("cell");
-        cell.dataset.index = index;
-        board.appendChild(cell);
+          // Make the move on the server.
+          $.ajax({
+            url: "/make-move",
+            type: "POST",
+            data: {
+              position: position,
+            },
+            success: function (response) {
+              // Update the board with the move.
+              $("#board").html(response);
+            },
+          });
+        });
       });
+    </script>
+  </body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tic Tac Toe</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  </head>
+  <body>
+    <h1>Tic Tac Toe</h1>
+    <div id="board">
+      <div class="row">
+        <button class="button" data-position="1">1</button>
+        <button class="button" data-position="2">2</button>
+        <button class="button" data-position="3">3</button>
+      </div>
+      <div class="row">
+        <button class="button" data-position="4">4</button>
+        <button class="button" data-position="5">5</button>
+        <button class="button" data-position="6">6</button>
+      </div>
+      <div class="row">
+        <button class="button" data-position="7">7</button>
+        <button class="button" data-position="8">8</button>
+        <button class="button" data-position="9">9</button>
+      </div>
+    </div>
+    <script>
+      $(function () {
+        // Bind the event to the click of the buttons.
+        $(".button").on("click", function () {
+          // Get the position of the button that was clicked.
+          const position = $(this).data("position");
 
-      // Game state variables
-      let currentPlayer = "X";
-      let isGameOver = false;
-
-      // Event listener for cell clicks
-      board.addEventListener("click", handleCellClick);
-
-      function handleCellClick(event) {
-        if (isGameOver) return;
-
-        const cell = event.target;
-        const index = cell.dataset.index;
-
-        if (cells[index]) return;
-
-        // Update cell value and render it on the board
-        cells[index] = currentPlayer;
-        cell.textContent = currentPlayer;
-        cell.classList.add(currentPlayer);
-
-        // Check for a winner or a draw
-        if (checkWin()) {
-          announceResult(`Player ${currentPlayer} wins!`);
-          isGameOver = true;
-          return;
-        }
-
-        if (checkDraw()) {
-          announceResult("It's a draw!");
-          isGameOver = true;
-          return;
-        }
-
-        // Switch to the next player
-        currentPlayer = currentPlayer === "X" ? "O" : "X";
-      }
-
-      // Function to check for a win
-      function checkWin() {
-        const winCombinations = [
-          [0, 1, 2],
-          [3, 4, 5],
-          [6, 7, 8], // rows
-          [0, 3, 6],
-          [1, 4, 7],
-          [2, 5, 8], // columns
-          [0, 4, 8],
-          [2, 4, 6], // diagonals
-        ];
-
-        for (const combination of winCombinations) {
-          const [a, b, c] = combination;
-          if (cells[a] && cells[a] === cells[b] && cells[a] === cells[c]) {
-            return true;
-          }
-        }
-
-        return false;
-      }
-
-      // Function to check for a draw
-      function checkDraw() {
-        return cells.every((cell) => cell !== undefined);
-      }
-
-      // Function to announce the game result
-      function announceResult(message) {
-        const result = document.createElement("div");
-        result.classList.add("result");
-        result.textContent = message;
-        document.body.appendChild(result);
-      }
+          // Make the move on the server.
+          $.ajax({
+            url: "/make-move",
+            type: "POST",
+            data: {
+              position: position,
+            },
+            success: function (response) {
+              // Update the board with the move.
+              $("#board").html(response);
+            },
+          });
+        });
+      });
     </script>
   </body>
 </html>
